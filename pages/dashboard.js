@@ -25,9 +25,9 @@ export default function Dashboard() {
     }
   };
 
-  const formatDate = (str) => {
+ const formatDate = (str) => {
     const d = new Date(str);
-    return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Pacific/Auckland' });
   };
 
   const counts = data ? data.reduce((acc, row) => {
