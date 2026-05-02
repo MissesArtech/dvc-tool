@@ -13,11 +13,11 @@ const PASSWORDS = {
   '3TECD': true,
 };
 
-const FUSION_PROMPT = `You are an expert industrial designer and Autodesk Fusion 360 specialist helping high school students DVC translate hand-drawn product designs into 3D CAD models.
+const ONSHAPE_PROMPT = `You are an expert industrial designer and OnShape CAD specialist helping high school DVC students translate hand-drawn product designs into 3D models using OnShape.
 
-Analyse the student's hand-drawn coffee maker sketch and produce two things:
+Analyse the student's hand-drawn sketch and produce clear beginner-friendly OnShape modelling instructions.
 
-SECTION 1: Written instructions using these exact headers:
+Use these exact section headers on their own lines:
 
 DESIGN ANALYSIS
 (3-4 sentences describing what you see: overall form, key components, interesting design choices)
@@ -25,20 +25,15 @@ DESIGN ANALYSIS
 KEY COMPONENTS
 (bullet list of the main 3D parts you can identify)
 
-FUSION 360 STEPS
-(6-10 numbered steps, each with a short title then the instruction. Reference real Fusion 360 tools by name: Sketch, Extrude, Revolve, Loft, Shell, Fillet, Mirror, Component, Joint. Build from simple to complex.)
+ONSHAPE STEPS
+(6-10 numbered steps, each with a short title then the instruction. Reference real OnShape tools by name: New Sketch, Extrude, Revolve, Loft, Shell, Fillet, Mirror, Boolean, Chamfer. Build from simple shapes to complex detail. Be specific about which plane to sketch on and which direction to extrude.)
 
 DESIGN TIPS
 (2-3 practical tips specific to this design)
 
-SECTION 2: A Fusion 360 Python script using this exact header on its own line:
+Keep language practical, clear and encouraging. Do not use markdown symbols like ** or ##.`;
 
-FUSION360_SCRIPT
-(Write a complete Fusion 360 API Python script that creates simple primitive shapes representing the main components of this coffee maker. Use only basic operations: createBox, createCylinder, simple extrusions. Keep it beginner-friendly with clear comments. The script must be complete and runnable. Start with: import adsk.core, adsk.fusion, traceback)
-
-Keep all language practical, clear and encouraging. Do not use markdown symbols like ** or ##.`;
-
-const SKETCHUP_PROMPT = `You are an expert architect and SketchUp specialist helping high school students DVC translate hand-drawn architectural designs into 3D models.
+const SKETCHUP_PROMPT = `You are an expert architect and SketchUp specialist helping high school DVC students translate hand-drawn architectural designs into 3D models.
 
 Analyse the student's hand-drawn architectural sketch and produce clear beginner-friendly SketchUp instructions.
 
@@ -72,11 +67,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const systemPrompt = tool === 'sketchup' ? SKETCHUP_PROMPT : FUSION_PROMPT;
+    const systemPrompt = tool === 'sketchup' ? SKETCHUP_PROMPT : ONSHAPE_PROMPT;
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 2000,
+      max_tokens: 1000,
       system: systemPrompt,
       messages: [{
         role: 'user',
@@ -89,24 +84,13 @@ export default async function handler(req, res) {
 
     const text = response.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
 
-    // Split out the script if present
-    let instructions = text;
-    let script = null;
-
-    const scriptMarker = 'FUSION360_SCRIPT';
-    const scriptIndex = text.indexOf(scriptMarker);
-    if (scriptIndex !== -1) {
-      instructions = text.slice(0, scriptIndex).trim();
-      script = text.slice(scriptIndex + scriptMarker.length).trim();
-    }
-
     await supabase.from('usage').insert({
       student_name: studentName.trim(),
       class_code: password,
-      tool: tool === 'sketchup' ? 'SketchUp' : 'Fusion 360',
+      tool: tool === 'sketchup' ? 'SketchUp' : 'OnShape',
     });
 
-    res.status(200).json({ result: instructions, script });
+    res.status(200).json({ result: text });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
