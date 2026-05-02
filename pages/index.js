@@ -6,7 +6,7 @@ export default function Home() {
   const [screen, setScreen] = useState('login');
   const [password, setPassword] = useState('');
   const [studentName, setStudentName] = useState('');
-  const [tool, setTool] = useState('fusion');
+  const [tool, setTool] = useState('onshape');
   const [image, setImage] = useState(null);
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,9 +68,9 @@ export default function Home() {
   };
 
   const parseResult = (text) => {
-    const headers = tool === 'fusion'
-      ? ['DESIGN ANALYSIS', 'KEY COMPONENTS', 'FUSION 360 STEPS', 'DESIGN TIPS']
-      : ['DESIGN ANALYSIS', 'KEY ELEMENTS', 'SKETCHUP STEPS', 'DESIGN TIPS'];
+    const headers = tool === 'sketchup'
+      ? ['DESIGN ANALYSIS', 'KEY ELEMENTS', 'SKETCHUP STEPS', 'DESIGN TIPS']
+      : ['DESIGN ANALYSIS', 'KEY COMPONENTS', 'ONSHAPE STEPS', 'DESIGN TIPS'];
     const sections = [];
     for (let i = 0; i < headers.length; i++) {
       const start = text.indexOf(headers[i]);
@@ -86,7 +86,7 @@ export default function Home() {
     'DESIGN ANALYSIS': '👁',
     'KEY COMPONENTS': '🔩',
     'KEY ELEMENTS': '🏛',
-    'FUSION 360 STEPS': '🔧',
+    'ONSHAPE STEPS': '🔧',
     'SKETCHUP STEPS': '📐',
     'DESIGN TIPS': '💡',
     'RESULT': '📄',
@@ -99,7 +99,7 @@ export default function Home() {
           <div style={{ width: 40, height: 40, background: '#c04a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 12, fontFamily: 'monospace' }}>DVC</div>
           <div>
             <div style={{ color: '#f5f0e8', fontWeight: 700, fontSize: 15, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              {tool === 'fusion' ? 'Drawing → Fusion 360' : 'Drawing → SketchUp'}
+              {tool === 'sketchup' ? 'Drawing → SketchUp' : 'Drawing → OnShape'}
             </div>
             <div style={{ color: '#888', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>Albany Senior High School</div>
           </div>
@@ -120,7 +120,7 @@ export default function Home() {
                 Sketch to<br />3D Model
               </h1>
               <p style={{ fontFamily: 'monospace', fontSize: 12, color: '#555', lineHeight: 1.8 }}>
-                Upload your hand-drawn design and get personalised step-by-step instructions for Fusion 360 or SketchUp.
+                Upload your hand-drawn design and get personalised step-by-step instructions for OnShape or SketchUp.
               </p>
             </div>
 
@@ -151,7 +151,10 @@ export default function Home() {
               <div style={{ marginBottom: 24 }}>
                 <label style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#555', display: 'block', marginBottom: 8 }}>Select Tool</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  {[['fusion', '🔧 Fusion 360', 'Product & industrial design'], ['sketchup', '📐 SketchUp', 'Architecture & spatial design']].map(([val, label, sub]) => (
+                  {[
+                    ['onshape', '🔧 OnShape', 'Product & industrial design'],
+                    ['sketchup', '📐 SketchUp', 'Architecture & spatial design']
+                  ].map(([val, label, sub]) => (
                     <div key={val} onClick={() => setTool(val)} style={{ border: `2px solid ${tool === val ? '#c04a1a' : '#ddd'}`, background: tool === val ? '#fff0ed' : 'white', padding: '12px 14px', cursor: 'pointer', transition: 'all 0.15s' }}>
                       <div style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 700, marginBottom: 4 }}>{label}</div>
                       <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#888' }}>{sub}</div>
@@ -172,7 +175,7 @@ export default function Home() {
         {screen === 'tool' && (
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
-              {[['fusion', '🔧 Fusion 360'], ['sketchup', '📐 SketchUp']].map(([val, label]) => (
+              {[['onshape', '🔧 OnShape'], ['sketchup', '📐 SketchUp']].map(([val, label]) => (
                 <div key={val} onClick={() => { setTool(val); setResult(null); setError(null); }} style={{ border: `2px solid ${tool === val ? '#c04a1a' : '#ddd'}`, background: tool === val ? '#fff0ed' : 'white', padding: '10px 14px', cursor: 'pointer', textAlign: 'center', fontFamily: 'monospace', fontSize: 12, fontWeight: 700, transition: 'all 0.15s' }}>
                   {label}
                 </div>
@@ -208,7 +211,9 @@ export default function Home() {
             <textarea
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
-              placeholder={tool === 'fusion' ? 'e.g. Manual drip coffee maker with glass decanter, wooden base and metal legs...' : 'e.g. Two storey house with open plan ground floor, large windows facing north...'}
+              placeholder={tool === 'sketchup'
+                ? 'e.g. Two storey house with open plan ground floor, large windows facing north...'
+                : 'e.g. Manual coffee maker with glass body, wooden handle and metal filter press...'}
               style={{ width: '100%', minHeight: 80, fontFamily: 'monospace', fontSize: 12, border: '2px solid #1a1a1a', padding: '12px 14px', resize: 'vertical', outline: 'none', lineHeight: 1.7, boxSizing: 'border-box', marginBottom: 16 }}
             />
 
