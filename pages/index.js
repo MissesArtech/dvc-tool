@@ -11,6 +11,7 @@ export default function Home() {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [script, setScript] = useState(null);
   const [error, setError] = useState(null);
   const fileRef = useRef();
 
@@ -34,6 +35,7 @@ export default function Home() {
     reader.onload = (e) => {
       setImage({ dataUrl: e.target.result, base64: e.target.result.split(',')[1], mediaType: file.type });
       setResult(null);
+      setScript(null);
       setError(null);
     };
     reader.readAsDataURL(file);
@@ -43,6 +45,7 @@ export default function Home() {
     if (!image) return;
     setLoading(true);
     setResult(null);
+    setScript(null);
     setError(null);
     try {
       const res = await fetch('/api/generate', {
@@ -60,11 +63,23 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setResult(data.result);
+      setScript(data.script || null);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const downloadScript = () => {
+    if (!script) return;
+    const blob = new Blob([script], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${studentName.replace(/\s+/g, '_')}_fusion360.py`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const parseResult = (text) => {
@@ -94,7 +109,6 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f0e8', fontFamily: 'Georgia, serif' }}>
-      {/* Header */}
       <div style={{ background: '#1a1a1a', borderBottom: '4px solid #c04a1a', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ width: 40, height: 40, background: '#c04a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 12, fontFamily: 'monospace' }}>DVC</div>
@@ -114,7 +128,6 @@ export default function Home() {
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '36px 20px' }}>
 
-        {/* LOGIN SCREEN */}
         {screen === 'login' && (
           <div>
             <div style={{ borderLeft: '4px solid #c04a1a', paddingLeft: 18, marginBottom: 36 }}>
@@ -162,95 +175,4 @@ export default function Home() {
                 </div>
               </div>
 
-              {error && <div style={{ background: '#fff0ed', border: '2px solid #c04a1a', padding: '10px 14px', fontFamily: 'monospace', fontSize: 12, color: '#c04a1a', marginBottom: 16 }}>{error}</div>}
-
-              <button onClick={handleLogin} style={{ width: '100%', padding: 14, background: '#c04a1a', color: 'white', border: 'none', fontFamily: 'Georgia, serif', fontWeight: 700, fontSize: 15, textTransform: 'uppercase', letterSpacing: '0.08em', cursor: 'pointer' }}>
-                Enter →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* TOOL SCREEN */}
-        {screen === 'tool' && (
-          <div>
-            {/* Tool switcher */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
-              {[['fusion', '🔧 Fusion 360'], ['sketchup', '📐 SketchUp']].map(([val, label]) => (
-                <div key={val} onClick={() => { setTool(val); setResult(null); setError(null); }} style={{ border: `2px solid ${tool === val ? '#c04a1a' : '#ddd'}`, background: tool === val ? '#fff0ed' : 'white', padding: '10px 14px', cursor: 'pointer', textAlign: 'center', fontFamily: 'monospace', fontSize: 12, fontWeight: 700, transition: 'all 0.15s' }}>
-                  {label}
-                </div>
-              ))}
-            </div>
-
-            {/* Upload */}
-            <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c04a1a', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
-              Step 01 — Upload Your Drawing
-              <div style={{ flex: 1, height: 1, background: '#e8e2d8' }} />
-            </div>
-
-            {!image ? (
-              <div onClick={() => fileRef.current.click()} style={{ border: '2px dashed #bbb', background: 'white', minHeight: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, cursor: 'pointer', marginBottom: 24 }}>
-                <div style={{ fontSize: 32 }}>✏️</div>
-                <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#666', textAlign: 'center' }}>
-                  <strong style={{ display: 'block', fontSize: 13, color: '#1a1a1a', marginBottom: 4 }}>Drop your drawing here</strong>
-                  or click to browse
-                </div>
-                <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => loadFile(e.target.files[0])} />
-              </div>
-            ) : (
-              <div style={{ position: 'relative', marginBottom: 24 }}>
-                <img src={image.dataUrl} alt="Drawing" style={{ width: '100%', maxHeight: 280, objectFit: 'contain', background: 'white', border: '2px solid #1a1a1a', display: 'block' }} />
-                <button onClick={() => setImage(null)} style={{ position: 'absolute', top: 0, right: 0, background: '#c04a1a', color: 'white', border: 'none', fontFamily: 'monospace', fontSize: 10, padding: '4px 12px', cursor: 'pointer', textTransform: 'uppercase' }}>✕ Remove</button>
-              </div>
-            )}
-
-            {/* Prompt */}
-            <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c04a1a', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
-              Step 02 — Describe Your Design
-              <div style={{ flex: 1, height: 1, background: '#e8e2d8' }} />
-            </div>
-
-            <textarea
-              value={prompt}
-              onChange={e => setPrompt(e.target.value)}
-              placeholder={tool === 'fusion' ? 'e.g. Manual drip coffee maker with glass decanter, wooden base and metal legs...' : 'e.g. Two storey house with open plan ground floor, large windows facing north...'}
-              style={{ width: '100%', minHeight: 80, fontFamily: 'monospace', fontSize: 12, border: '2px solid #1a1a1a', padding: '12px 14px', resize: 'vertical', outline: 'none', lineHeight: 1.7, boxSizing: 'border-box', marginBottom: 16 }}
-            />
-
-            {error && <div style={{ background: '#fff0ed', border: '2px solid #c04a1a', padding: '10px 14px', fontFamily: 'monospace', fontSize: 12, color: '#c04a1a', marginBottom: 16 }}>{error}</div>}
-
-            <button onClick={generate} disabled={!image || loading} style={{ width: '100%', padding: 16, background: !image || loading ? '#ccc' : '#c04a1a', color: 'white', border: 'none', fontFamily: 'Georgia, serif', fontWeight: 700, fontSize: 15, textTransform: 'uppercase', letterSpacing: '0.08em', cursor: !image || loading ? 'not-allowed' : 'pointer', marginBottom: 32 }}>
-              {loading ? 'Analysing...' : 'Analyse & Generate →'}
-            </button>
-
-            {/* Result */}
-            {result && (
-              <div>
-                <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c04a1a', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
-                  Your Instructions
-                  <div style={{ flex: 1, height: 1, background: '#e8e2d8' }} />
-                </div>
-                <div style={{ background: 'white', border: '2px solid #1a1a1a', padding: '24px 28px' }}>
-                  {parseResult(result).map(({ header, content }) => (
-                    <div key={header} style={{ marginBottom: 24 }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#3d5a73', marginBottom: 8, paddingBottom: 6, borderBottom: '1px solid #e8e2d8' }}>
-                        {icons[header] || '—'} {header}
-                      </div>
-                      <div style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.9, color: '#1a1a1a', whiteSpace: 'pre-wrap' }}>
-                        {content}
-                      </div>
-                    </div>
-                  ))}
-                  <button onClick={() => navigator.clipboard.writeText(result)} style={{ background: '#3d5a73', color: 'white', border: 'none', fontFamily: 'monospace', fontSize: 10, padding: '6px 16px', cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                    Copy All
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+              {error && <div style={{ background: '#fff0ed
