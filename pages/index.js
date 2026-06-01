@@ -28,8 +28,12 @@ export default function Home() {
     setScreen('tool');
   };
 
-  const loadFile = (file) => {
+const loadFile = (file) => {
     if (!file || !file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Your image is too large (over 5MB). Please take a photo of your drawing on your phone and upload that instead — phone photos of sketches work best.');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       setImage({ dataUrl: e.target.result, base64: e.target.result.split(',')[1], mediaType: file.type });
