@@ -21,7 +21,7 @@ const globalStyles = `
   body { background: #0A0A0A; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  ::placeholder { color: #aaaaaa; }
+  ::placeholder { color: #ffffff; }
   textarea:focus, input:focus { outline: none; border-color: #FF5C00 !important; }
 `;
 
