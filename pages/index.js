@@ -8,7 +8,7 @@ const B = {
   orange: '#FF5C00',
   grey: '#1A1A1A',
   greyMid: '#2A2A2A',
-  greyLight: '#444444',
+  greyLight: '#999999',
   offwhite: '#F0F0F0',
 };
 
