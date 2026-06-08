@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const B = { black:'#0A0A0A', white:'#FFFFFF', orange:'#FF5C00', grey:'#1A1A1A', greyMid:'#2A2A2A', greyLight:'#444444', offwhite:'#F0F0F0' };
+const B = { black:'#0A0A0A', white:'#FFFFFF', orange:'#FF5C00', grey:'#1A1A1A', greyMid:'#2A2A2A', greyLight:'#999999', offwhite:'#F0F0F0' };
 const mono = "'Montserrat', sans-serif";
 const sans = "'Bebas Neue', 'Arial Black', sans-serif";
 const gs = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;700&display=swap');*{box-sizing:border-box;margin:0;padding:0;}body{background:#0A0A0A;}input:focus{outline:none;border-color:#FF5C00!important;}::placeholder{color:#555;}`;
